@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Install nix
+        uses: cachix/install-nix-action@master
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: |
+           nix build -f ./default.nix streamImage -L --argstr system aarch64-linux
+
+      - name: Upload container
+        run: |
+          ./result | docker load
+          docker tag localhost/next-test ghcr.io/${{ github.repository }}:latest-aarch64
+          docker push ghcr.io/${{ github.repository }}:latest-aarch64
+
