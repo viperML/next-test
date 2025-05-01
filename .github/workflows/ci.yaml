@@ -29,11 +29,11 @@ jobs:
 
       - name: Build image
         run: |
-           nix build -f ./default.nix streamImage -L --argstr system aarch64-linux
+           nix build -f ./default.nix streamImage -L
 
       - name: Upload container
         run: |
           ./result | docker load
-          docker tag localhost/next-test ghcr.io/${GITHUB_REPOSITORY@L}:latest-aarch64
-          docker push ghcr.io/${GITHUB_REPOSITORY@L}:latest-aarch64
+          docker tag next-test:latest ghcr.io/${GITHUB_REPOSITORY@L}:latest-arm64
+          docker push ghcr.io/${GITHUB_REPOSITORY@L}:latest-arm64
 
