@@ -1,5 +1,10 @@
+{
+  system ? builtins.currentSystem,
+}:
 let
-  pkgs = import <nixpkgs> { };
+  pkgs = import <nixpkgs> {
+    inherit system;
+  };
   inherit (pkgs) lib;
 in
 lib.fix (self: {

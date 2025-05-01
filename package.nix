@@ -2,12 +2,13 @@
   stdenv,
   lib,
   nodejs,
-  pnpm,
+  yarnConfigHook,
+  yarnBuildHook,
   makeBinaryWrapper,
+  fetchYarnDeps,
   basePath ? "/next-test",
 }:
 let
-  fs = lib.fileset;
   package-json = builtins.fromJSON (builtins.readFile ./package.json);
 in
 stdenv.mkDerivation (final: {
@@ -17,22 +18,22 @@ stdenv.mkDerivation (final: {
 
   nativeBuildInputs = [
     nodejs
-    pnpm.configHook
+    yarnConfigHook
+    yarnBuildHook
     makeBinaryWrapper
   ];
 
-  pnpmDeps = pnpm.fetchDeps {
-    inherit (final) pname src;
+  yarnOfflineCache = fetchYarnDeps {
+    yarnLock = final.src + "/yarn.lock";
     hash =
       {
-        "5b001fee08f642a93c96b936e373d12fe30e11d2" = "sha256-JfnRZ2LHuidPXBJICyfnFRGCw+8HxiJ/ribp7l5DUDg=";
+        "6aaebf40e46966c93a9304426b71c7cba78f9b9b" = "sha256-9LoXrxXdA5cuft5L0q/ffKMEmlBDwGKAR13Gms45Ep8=";
       }
-      .${builtins.hashFile "sha1" ./pnpm-lock.yaml};
+      .${builtins.hashFile "sha1" ./yarn.lock};
   };
 
-  buildPhase = ''
+  preBuild = ''
     export NEXT_PUBLIC_BASE_PATH="${basePath}"
-    pnpm build
   '';
 
   installPhase = ''
