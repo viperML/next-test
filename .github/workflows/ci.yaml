@@ -49,7 +49,7 @@ jobs:
 
       - name: Request deployment to Nomad
         env:
-          NOMAD_ADDR: nomad.ayats.org
+          NOMAD_ADDR: https://nomad.ayats.org
           NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
           NOMAD_HTTP_AUTH: ${{ secrets.NOMAD_HTTP_AUTH }}
         run: |
