@@ -1,6 +1,6 @@
 variable "tag" {
   type = string
-  default = "latest-arm64"
+  default = "ghcr.io/viperml/next-test:latest-arm64"
 }
 
 job "next-test" {
@@ -17,7 +17,7 @@ job "next-test" {
       driver = "docker"
 
       config {
-        image = "ghcr.io/viperml/next-test:${var.tag}"
+        image = var.tag
         ports = ["http"]
       }
 
