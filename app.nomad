@@ -1,3 +1,7 @@
+variable "tag" {
+  type = string
+  default = "latest-arm64"
+}
 
 job "next-test" {
   datacenters = ["dc1"]
@@ -13,7 +17,7 @@ job "next-test" {
       driver = "docker"
 
       config {
-        image = "ghcr.io/viperml/next-test:zxmjfqvl2nhb7gkpg7phyp9anaq607ga"
+        image = "ghcr.io/viperml/next-test:${var.tag}"
         ports = ["http"]
       }
 
