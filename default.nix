@@ -15,6 +15,7 @@ lib.fix (self: {
     in
     {
       name = "next-test";
+      tag = "latest";
       contents = [
         self.package
       ];
