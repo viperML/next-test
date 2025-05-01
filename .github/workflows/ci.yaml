@@ -34,6 +34,6 @@ jobs:
       - name: Upload container
         run: |
           ./result | docker load
-          docker tag localhost/next-test ghcr.io/${{ github.repository }}:latest-aarch64
-          docker push ghcr.io/${{ github.repository }}:latest-aarch64
+          docker tag localhost/next-test ghcr.io/${GITHUB_REPOSITORY@L}:latest-aarch64
+          docker push ghcr.io/${GITHUB_REPOSITORY@L}:latest-aarch64
 
