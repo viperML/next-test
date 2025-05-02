@@ -44,26 +44,33 @@ jobs:
           docker push $IMAGE_TAG
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # merge:
-  #   runs-on: ubuntu-24.04
-  #   permissions:
-  #     packages: write
-  #   steps:
-  #     - run: |
-  #         docker pull ghcr.io/${GITHUB_REPOSITORY@L}
+  merge:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - run: |
+          docker pull ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-amd64
+          docker pull ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-arm64
+          docker manifest create ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }} \
+            ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-amd64 \
+            ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-arm64
+          docker push ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}
+          docker tag ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }} ghcr.io/${GITHUB_REPOSITORY@L}:latest
+          docker push ghcr.io/${GITHUB_REPOSITORY@L}:latest
 
-  # deploy:
-  #   runs-on: ubuntu-24.04
-  #   permissions:
-  #     packages: write
-  #   steps:
-  #     - name: Install Nomad
-  #       uses: hashicorp/setup-nomad@main
+  deploy:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - name: Install Nomad
+        uses: hashicorp/setup-nomad@main
 
-  #     - name: Request deployment to Nomad
-  #       env:
-  #         NOMAD_ADDR: https://nomad.ayats.org
-  #         NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
-  #         NOMAD_HTTP_AUTH: ${{ secrets.NOMAD_HTTP_AUTH }}
-  #       run: |
-  #         nomad run -var="tag=${{ steps.docker_push.outputs.image_tag }}" ./app.nomad
+      - name: Request deployment to Nomad
+        env:
+          NOMAD_ADDR: https://nomad.ayats.org
+          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+          NOMAD_HTTP_AUTH: ${{ secrets.NOMAD_HTTP_AUTH }}
+        run: |
+          nomad run -var="tag=ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}" ./app.nomad

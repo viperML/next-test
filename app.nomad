@@ -1,6 +1,6 @@
 variable "tag" {
   type = string
-  default = "ghcr.io/viperml/next-test:latest-arm64"
+  default = "ghcr.io/viperml/next-test"
 }
 
 job "next-test" {
