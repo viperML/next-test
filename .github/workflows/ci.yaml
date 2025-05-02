@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         image: [ubuntu-24.04-arm, ubuntu-24.04]
-        system: [arm64, amd64]
     runs-on: ${{ matrix.image }}
     permissions:
       packages: write
