@@ -7,8 +7,12 @@ on:
       - master
 
 jobs:
-  main:
-    runs-on: ubuntu-24.04-arm
+  build:
+    strategy:
+      matrix:
+        image: [ubuntu-24.04-arm, ubuntu-24.04]
+        system: [arm64, amd64]
+    runs-on: ${{ matrix.image }}
     permissions:
       packages: write
     steps:
@@ -34,23 +38,32 @@ jobs:
       - name: Tag and push image
         id: docker_push
         run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          IMAGE_TAG_LATEST=ghcr.io/${GITHUB_REPOSITORY@L}:latest-arm64
-          IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY@L}:$TIMESTAMP-arm64
+          IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-${{ matrix.system }}
           ./result | docker load
-          docker tag next-test:latest $IMAGE_TAG_LATEST
           docker tag next-test:latest $IMAGE_TAG
-          docker push $IMAGE_TAG_LATEST
           docker push $IMAGE_TAG
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Install Nomad
-        uses: hashicorp/setup-nomad@main
+  # merge:
+  #   runs-on: ubuntu-24.04
+  #   permissions:
+  #     packages: write
+  #   steps:
+  #     - run: |
+  #         docker pull ghcr.io/${GITHUB_REPOSITORY@L}
 
-      - name: Request deployment to Nomad
-        env:
-          NOMAD_ADDR: https://nomad.ayats.org
-          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
-          NOMAD_HTTP_AUTH: ${{ secrets.NOMAD_HTTP_AUTH }}
-        run: |
-          nomad run -var="tag=${{ steps.docker_push.outputs.image_tag }}" ./app.nomad
+  # deploy:
+  #   runs-on: ubuntu-24.04
+  #   permissions:
+  #     packages: write
+  #   steps:
+  #     - name: Install Nomad
+  #       uses: hashicorp/setup-nomad@main
+
+  #     - name: Request deployment to Nomad
+  #       env:
+  #         NOMAD_ADDR: https://nomad.ayats.org
+  #         NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+  #         NOMAD_HTTP_AUTH: ${{ secrets.NOMAD_HTTP_AUTH }}
+  #       run: |
+  #         nomad run -var="tag=${{ steps.docker_push.outputs.image_tag }}" ./app.nomad
