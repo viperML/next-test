@@ -56,9 +56,7 @@ jobs:
           docker manifest create ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }} \
             ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-amd64 \
             ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-arm64
-          docker push ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}
-          docker tag ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }} ghcr.io/${GITHUB_REPOSITORY@L}:latest
-          docker push ghcr.io/${GITHUB_REPOSITORY@L}:latest
+          docker manifest push ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}
 
   deploy:
     needs: merge
