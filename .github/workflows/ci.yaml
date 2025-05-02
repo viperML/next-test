@@ -38,7 +38,8 @@ jobs:
       - name: Tag and push image
         id: docker_push
         run: |
-          IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-${{ matrix.system }}
+          ARCH="$(docker info --format json | jq -r '.ClientInfo.Arch')"
+          IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY@L}:${{ github.sha }}-$ARCH
           ./result | docker load
           docker tag next-test:latest $IMAGE_TAG
           docker push $IMAGE_TAG
